@@ -1,8 +1,6 @@
 
 # vim:set ft=dockerfile:
 FROM ubuntu:xenial
-ARG PPATH
-RUN echo $PPATH
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 
@@ -73,10 +71,8 @@ RUN apt-get update -y
 RUN apt-get install -y curl libdbi-perl rsync socat libnuma1 libaio1 zlib1g-dev libreadline5 libjemalloc1 libsnappy1v5 libcrack2 apt-utils
 
 RUN apt-get install -y galera4
-RUN export DEB_PATH="${PPATH}/travis/build/*.deb"
-RUN echo "proj path value: $DEB_PATH"
 
-COPY ${DEB_PATH} /root/
+COPY *.deb /root/
 RUN chmod 777 /root/*
 
 RUN dpkg --install /root/mysql-common*
@@ -99,7 +95,7 @@ RUN rm -rf /var/lib/apt/lists/* \
 
 VOLUME /var/lib/mysql
 
-COPY $PPATH/travis/build/docker-entrypoint.sh /usr/local/bin/
+COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 

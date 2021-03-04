@@ -151,6 +151,7 @@ while getopts ":t:v:d:" flag; do
         d) DATABASE=${OPTARG};;
     esac
 done
+
 echo "TYPE: $TYPE"
 echo "VERSION: $VERSION"
 echo "DATABASE: $DATABASE"
@@ -162,8 +163,8 @@ export TYPE_VERS=$"$TYPE:$VERSION"
 case $TYPE in
     skysql|skysql-ha)
         if [ -z "$CONNECTOR_TEST_SECRET_KEY" ] ; then
-          echo "secret key must be provided for $TYPE setting CONNECTOR_TEST_SECRET_KEY variable"
-          exit 1
+          echo "private environment variable CONNECTOR_TEST_SECRET_KEY must be provided for $TYPE"
+          exit 10
         fi
         decrypt
         source $PROJ_PATH/secretdir/${TYPE}.sh > /dev/null
@@ -172,7 +173,7 @@ case $TYPE in
     maxscale)
         if [ -z "$TEST_DB_DATABASE" ] ; then
           echo "database must be provided for $TYPE"
-          exit 5
+          exit 20
         fi
         generate_ssl
         launch_docker
@@ -181,11 +182,11 @@ case $TYPE in
     mariadb|mysql)
         if [ -z "$VERSION" ] ; then
           echo "version must be provided for $TYPE"
-          exit 2
+          exit 30
         fi
         if [ -z "$TEST_DB_DATABASE" ] ; then
           echo "database must be provided for $TYPE"
-          exit 5
+          exit 31
         fi
         generate_ssl
         echo "ssl files configured"
@@ -194,16 +195,16 @@ case $TYPE in
 
     mariadb-es)
         if [ -z "$CONNECTOR_TEST_SECRET_KEY" ] ; then
-          echo "secret key must be provided for $TYPE setting CONNECTOR_TEST_SECRET_KEY variable"
-          exit 1
+          echo "private environment variable CONNECTOR_TEST_SECRET_KEY must be provided for $TYPE"
+          exit 40
         fi
         if [ -z "$VERSION" ] ; then
           echo "version must be provided for $TYPE"
-          exit 2
+          exit
         fi
         if [ -z "$TEST_DB_DATABASE" ] ; then
           echo "database must be provided for $TYPE"
-          exit 5
+          exit 41
         fi
 
         decrypt
@@ -222,17 +223,17 @@ case $TYPE in
     build)
         if [ -z "$TEST_DB_DATABASE" ] ; then
           echo "database must be provided for $TYPE"
-          exit 6
+          exit 50
         fi
         /bin/bash $PROJ_PATH/travis/build/build.sh
         ls -lrt $PROJ_PATH
         ls -lrt $PROJ_PATH/travis/build
-        docker build -t build:10.6 --label build --build-arg PPATH=$PROJ_PATH $PROJ_PATH/travis/build
+        docker build -t build:10.6 --label build $PROJ_PATH/travis/build
         generate_ssl
         launch_docker
         ;;
     *)
       echo "unsupported type: $TYPE"
-      exit 4
+      exit 60
       ;;
 esac
