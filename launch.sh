@@ -98,7 +98,7 @@ launch_docker () {
 
   echo 'data server active !'
 
-  if [[ "$TYPE" != "mysql" && "$TYPE" != "mariadb-es" ]] ; then
+  if [[ "$TYPE" != "mysql" && "$TYPE" != "mariadb-es" && "$TYPE" != "build" ]] ; then
 
     export TEST_PAM_USER=testPam
     export TEST_PAM_PWD=myPwd
