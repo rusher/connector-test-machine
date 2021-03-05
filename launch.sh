@@ -65,7 +65,7 @@ launch_docker () {
       export TEST_DB_PORT=4006
       export TEST_MAXSCALE_TLS_PORT=4009
       export COMPOSE_FILE=$PROJ_PATH/travis/maxscale-compose.yml
-      docker-compose -f ${COMPOSE_FILE} build
+      docker-compose -f ${COMPOSE_FILE} build > /dev/null
   fi
 
   mysql=( mysql --protocol=TCP -u${TEST_DB_USER} -h${TEST_DB_HOST} --port=${TEST_DB_PORT} ${TEST_DB_DATABASE} --password=$TEST_DB_PASSWORD)
@@ -226,9 +226,7 @@ case $TYPE in
           exit 50
         fi
         /bin/bash $PROJ_PATH/travis/build/build.sh
-        ls -lrt $PROJ_PATH
-        ls -lrt $PROJ_PATH/travis/build
-        docker build -t build:10.6 --label build $PROJ_PATH/travis/build
+        docker build -t build:10.6 --label build $PROJ_PATH/travis/build > /dev/null
         generate_ssl
         launch_docker
         ;;
