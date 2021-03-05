@@ -18,7 +18,7 @@ grep -o ">build-[0-9]*" index.html | grep -o "[0-9]*" | tac | while read -r line
         then
           echo "skipped file: $file"
         else
-          echo "download file: http://hasky.askmonty.org/archive/10.6/build-$line/kvm-deb-xenial-amd64/debs/binary/$file to $PROJ_PATH/travis/build/$file"
+          echo "download file: http://hasky.askmonty.org/archive/10.6/build-$line/kvm-deb-xenial-amd64/debs/binary/$file"
           wget -q -o /dev/null -O $PROJ_PATH/travis/build/$file http://hasky.askmonty.org/archive/10.6/build-$line/kvm-deb-xenial-amd64/debs/binary/$file
         fi
     done
