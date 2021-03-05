@@ -65,7 +65,11 @@ launch_docker () {
       export TEST_DB_PORT=4006
       export TEST_MAXSCALE_TLS_PORT=4009
       export COMPOSE_FILE=$PROJ_PATH/travis/maxscale-compose.yml
-      docker-compose -f ${COMPOSE_FILE} build > /dev/null
+      if [ "$DEBUG" = true ] ; then
+        docker-compose -f ${COMPOSE_FILE} build
+      else
+        docker-compose -f ${COMPOSE_FILE} build > /dev/null
+      fi
   fi
 
   mysql=( mysql --protocol=TCP -u${TEST_DB_USER} -h${TEST_DB_HOST} --port=${TEST_DB_PORT} ${TEST_DB_DATABASE} --password=$TEST_DB_PASSWORD)
@@ -143,18 +147,20 @@ launch_docker () {
 
 
 export PROJ_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-while getopts ":t:v:d:" flag; do
+DEBUG=false
+while getopts ":t:v:d:debug:" flag; do
     case "${flag}" in
         t) TYPE=${OPTARG};;
         v) VERSION=${OPTARG};;
         d) DATABASE=${OPTARG};;
+        debug) DEBUG=("1" == ${OPTARG});;
     esac
 done
 
 echo "TYPE: $TYPE"
 echo "VERSION: $VERSION"
 echo "DATABASE: $DATABASE"
+echo "DEBUG: $DEBUG"
 echo "PROJ_PATH: $PROJ_PATH"
 
 export TEST_DB_DATABASE=$DATABASE
@@ -167,7 +173,11 @@ case $TYPE in
           exit 10
         fi
         decrypt
-        source $PROJ_PATH/secretdir/${TYPE}.sh > /dev/null
+        if [ "$DEBUG" = true ] ; then
+          source $PROJ_PATH/secretdir/${TYPE}.sh
+        else
+          source $PROJ_PATH/secretdir/${TYPE}.sh > /dev/null
+        fi
         ;;
 
     maxscale)
@@ -226,7 +236,11 @@ case $TYPE in
           exit 50
         fi
         /bin/bash $PROJ_PATH/travis/build/build.sh
-        docker build -t build:10.6 --label build $PROJ_PATH/travis/build > /dev/null
+        if [ "$DEBUG" = true ] ; then
+          docker build -t build:10.6 --label build $PROJ_PATH/travis/build
+        else
+          docker build -t build:10.6 --label build $PROJ_PATH/travis/build > /dev/null
+        fi
         generate_ssl
         launch_docker
         ;;
