@@ -96,7 +96,10 @@ RUN rm -rf /var/lib/apt/lists/* \
 VOLUME /var/lib/mysql
 
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN ls -lrt /usr/local/bin/do*
+
+RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 3306
